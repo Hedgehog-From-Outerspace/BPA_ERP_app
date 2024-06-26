@@ -47,11 +47,11 @@
         </form>
     </div>
     <h2>Bestellingen</h2>
-    <table class="table table-hover table-primary">
+    <table class="table table-hover table-secondary table-striped">
         <thead>
             <tr>
                 <th>Id</th>
-                <th>Datum & tijd</th>
+                <th>Besteldatum</th>
                 <th>Periode</th>
                 <th>Type onderdeel</th>
                 <th>Aantal</th>
@@ -64,13 +64,13 @@
             {% for order in orders %}
             <tr>
                 <td>{{ order.id }}</td>
-                <td>{{ order.date_time }}</td>
-                <td>{{ order.period }}</td>
-                <td>{{ order.type }}</td>
+                <td></td>
+                <td></td>
+                <td></td>
                 <td>{{ order.amount }}</td>
-                <td>{{ order.expected_delivery_time }}</td>
-                <td>{{ order.actual_delivery_time }}</td>
-                <td>{{ order.correct }}</td>
+                <td></td>
+                <td></td>
+                <td></td>
             </tr>
             {% endfor %}
         </tbody>
