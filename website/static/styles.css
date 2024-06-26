@@ -1,0 +1,5 @@
+.input-align {
+    display: flex;
+    align-items: center; /* This vertically centers the button/input in the div */
+    height: 85px; /* Adjust the height to match your inputs' height */
+}

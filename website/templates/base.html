@@ -3,7 +3,9 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="icon" href="/favicon.ico" type="image/x-icon">
         <link rel="stylesheet" href="../static/bootstrap-sandstone.css">
+        <link rel="stylesheet" href="../static/styles.css">
         <title>{% block title %}Home{% endblock %}</title>
     </head>
     <body>
@@ -34,11 +36,28 @@
                 </div>
             </div>
         </nav>
-            <div class="container">
-                {% block content %}
-                {% endblock %}
-            </div>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    {% if category == 'error' %}
+                        <div class="alert alert-danger alert-dismissable" role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
 
+                        </div>
+                    {% else %}
+                        <div class="alert alert-success alert-dismissable" role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        <div class="container">
+            {% block content %}
+            {% endblock %}
+        </div>
         <script src="../static/bootstrap.bundle.min.js"></script>
     </body> 
 </html>

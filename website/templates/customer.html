@@ -2,4 +2,79 @@
 {% block title %}Klant{% endblock %}
 {% block content %}
 <h1> This is the klant page</h1>
+<div class="form-group">
+    <div>
+        <h2>Maak een bestelling</h2>
+        <form id="orderForm" method="POST">
+            <div class="row form-row">
+                <div class="form-group col-md-2">
+                    <label for="period">Periode</label>
+                    <input 
+                        type="number" 
+                        id="period" 
+                        name="period" 
+                        class="form-control" 
+                        min="1" 
+                        max="36" 
+                        required="required">
+                </div>
+                <div class="form-group col-md-2">
+                    <label for="type">Type</label>
+                    <input 
+                        type="text" 
+                        id="type" 
+                        name="type" 
+                        class="form-control" 
+                        required="required">
+                </div>
+                <div class="form-group col-md-2">
+                    <label for="amount">Aantal</label>
+                    <input 
+                        type="number" 
+                        id="amount" 
+                        name="amount" 
+                        class="form-control" 
+                        min="1" 
+                        max="2" 
+                        required="required">
+                </div>
+                <div class="form-group col-md-3">
+                    <div class="input-align">
+                        <button type="submit" class="btn btn-primary">Bestelling plaatsen</button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+    <h2>Bestellingen</h2>
+    <table class="table table-hover table-primary">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Datum & tijd</th>
+                <th>Periode</th>
+                <th>Type onderdeel</th>
+                <th>Aantal</th>
+                <th>Verwachte levertijd</th>
+                <th>Werkelijke levertijd</th>
+                <th>Bestelling correct</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for order in orders %}
+            <tr>
+                <td>{{ order.id }}</td>
+                <td>{{ order.date_time }}</td>
+                <td>{{ order.period }}</td>
+                <td>{{ order.type }}</td>
+                <td>{{ order.amount }}</td>
+                <td>{{ order.expected_delivery_time }}</td>
+                <td>{{ order.actual_delivery_time }}</td>
+                <td>{{ order.correct }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+
+    </table>
+</div>
 {% endblock %}
