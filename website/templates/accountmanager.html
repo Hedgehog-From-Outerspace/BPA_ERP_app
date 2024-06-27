@@ -18,23 +18,24 @@
             </tr>
         </thead>
         <tbody>
-            {% for order in orders %}
+            {% for order in orders_created %}
             <tr>
                 <td>{{ order.id }}</td>
                 <td>{{ order.item_type }}</td>
                 <td>{{ order.amount }}</td>
-                <td>{{ order_dates[order.id][0] if order.id in order_dates else 'N/A' }}</td>
-                <td>{{ order_dates[order.id][1] if order.id in order_dates else 'N/A' }}</td>
-                <td>{{ order_dates[order.id][1] + 6 if order.id in order_dates else 'N/A' }}</td>
+                <td>{{ order_dates_created[order.id][0] if order.id in order_dates_created else 'N/A' }}</td>
+                <td>{{ order_dates_created[order.id][1] if order.id in order_dates_created else 'N/A' }}</td>
+                <td>{{ order_dates_created[order.id][1] + 6 if order.id in order_dates_created else 'N/A' }}</td>
                 <td>
-                    <!-- een numerical select thing (1-40) -->
+                    <input class="form-control actual-delivery-input" type="number" name="actual_delivery_period" id="actual_delivery_period_{{ order.id }}"
+                           min="1" max="40" value="{% if order.id in order_dates_finished %}{{ order_dates_finished[order.id] }}{% endif %}" data-order-id="{{ order.id }}">
                 </td>
                 <td class="text-center">
                     <div class="form-check d-flex justify-content-center">
-                        <input class="form-check-input" type="checkbox" 
-                            name="correct_{{ order.id }}" id="flexCheckDefault"
-                            data-order-id="{{ order.id }}" data-type="accountmanager"
-                            {% if order.accountmanager_checked %} checked {% endif %}>
+                        <input class="form-check-input correct-checkbox" type="checkbox" 
+                               name="correct_{{ order.id }}" id="correct_{{ order.id }}"
+                               data-order-id="{{ order.id }}" data-type="accountmanager" {% if order.accountmanager_checked %} checked {% endif %}
+                               {% if order.id not in order_dates_created or not order_dates_finished[order.id] %} disabled {% endif %}>
                     </div>
                 </td>
             </tr>

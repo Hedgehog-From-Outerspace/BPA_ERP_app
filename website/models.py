@@ -31,3 +31,9 @@ class Record(db.Model):
     period = db.Column(db.Integer, nullable=False)
     activity = db.Column(db.String(100), nullable=False)
 
+class Stock(db.Model):
+    __tablename__ = 'Stock'
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    blue = db.Column(db.Integer, nullable=False)
+    red = db.Column(db.Integer, nullable=False)
+    grey = db.Column(db.Integer, nullable=False)
