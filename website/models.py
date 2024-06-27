@@ -10,6 +10,7 @@ class Order(db.Model):
     red = db.Column(db.Integer, nullable=True)
     grey = db.Column(db.Integer, nullable=True)
     accountmanager_checked = db.Column(db.Boolean, nullable=True)
+    customer_checked = db.Column(db.Boolean, nullable=True)
     records = db.relationship('Record', backref='Order', lazy=True)
 
 class SupplyOrder(db.Model):

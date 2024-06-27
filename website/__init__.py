@@ -1,5 +1,5 @@
 import os
-from flask import Flask
+from flask import Flask, send_from_directory
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from dotenv import load_dotenv
@@ -29,5 +29,9 @@ def create_app():
     app.register_blueprint(views, url_prefix='/')
 
     from .models import Order, SupplyOrder, Record
+
+    @app.route('/favicon.ico')
+    def favicon():
+        return send_from_directory(os.path.join(app.root_path, '/website/static'), 'favicon.ico', mimetype='image/vnd.microsoft.icon')
 
     return app

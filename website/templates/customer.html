@@ -1,8 +1,8 @@
 {% extends "base.html" %}
 {% block title %}Klant{% endblock %}
 {% block content %}
-<h1> This is the klant page</h1>
 <div class="form-group">
+    <h1> Klant pagina</h1>
     <div>
         <h2>Maak een bestelling</h2>
         <form id="orderForm" method="POST">
@@ -51,12 +51,12 @@
         <thead>
             <tr>
                 <th>Id</th>
-                <th>Besteldatum</th>
-                <th>Periode</th>
                 <th>Type onderdeel</th>
                 <th>Aantal</th>
-                <th>Verwachte levertijd</th>
-                <th>Werkelijke levertijd</th>
+                <th>Besteldatum</th>
+                <th>Periode</th>
+                <th>Verwachte leverperiode</th>
+                <th>Werkelijke leverperiode</th>
                 <th>Bestelling correct</th>
             </tr>
         </thead>
@@ -64,17 +64,24 @@
             {% for order in orders %}
             <tr>
                 <td>{{ order.id }}</td>
-                <td></td>
-                <td></td>
-                <td></td>
+                <td>{{ order.item_type }}</td>
                 <td>{{ order.amount }}</td>
+                <td>{{ order_dates[order.id][0] if order.id in order_dates else 'N/A' }}</td>
+                <td>{{ order_dates[order.id][1] if order.id in order_dates else 'N/A' }}</td>
+                <td>{{ order_dates[order.id][1] + 6 if order.id in order_dates else 'N/A' }}</td>
                 <td></td>
-                <td></td>
-                <td></td>
+                <td class="text-center">
+                    <div class="form-check d-flex justify-content-center">
+                        <input class="form-check-input" type="checkbox" 
+                            name="correct_{{ order.id }}" id="flexCheckDefault"
+                            data-order-id="{{ order.id }}"
+                            {% if order.customer_checked %} checked {% endif %}>
+                    </div>
+                </td>
             </tr>
             {% endfor %}
         </tbody>
-
     </table>
 </div>
+<script src="{{ url_for('static', filename='main.js') }}"></script>
 {% endblock %}

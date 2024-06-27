@@ -1,7 +1,9 @@
-from flask import Blueprint, render_template, request, flash
+from flask import Blueprint, render_template, request, flash, jsonify
 from .models import Order, SupplyOrder, Record
 from . import db
 from datetime import datetime, timezone
+import os
+import pytz
 
 views = Blueprint('views', __name__)
 
@@ -11,9 +13,10 @@ def home():
 
 @views.route('/klant', methods=['GET', 'POST'])
 def customer():
+    client_timezone = pytz.timezone('Europe/Amsterdam')
     if request.method == 'POST':
         period = request.form.get('period')
-        item_type = request.form.get('type')
+        item_type = request.form.get('type').upper()
         amount = request.form.get('amount')
 
         if item_type.lower() not in ['a', 'b', 'c']:
@@ -32,18 +35,36 @@ def customer():
     records = Record.query.filter(
         db.func.date(Record.date_time) == today, 
         Record.activity == "Order created"
-        ).all()
+    ).all()
     order_ids = [record.OrderId for record in records]
     orders = Order.query.filter(Order.id.in_(order_ids)).all()
 
+    # Create a dictionary to map order ids to their "Order created" dates
+    order_dates = {
+        record.OrderId: (
+            record.date_time.replace(tzinfo=pytz.utc).astimezone(client_timezone).strftime('%Y-%m-%d %H:%M'),
+            record.period
+        ) for record in records
+    }
 
-    for order in orders:
-        print(order.id, order.item_type, order.amount)
+    return render_template("customer.html", orders=orders, order_dates=order_dates)
 
-    for record in records:
-        print(record.OrderId, record.period, record.activity, record.date_time)
+@views.route('/update_order_status', methods=['POST'])
+def update_order_status():
+    data = request.get_json()
+    order_id = data['order_id']
+    correct = data['correct']
 
-    return render_template("customer.html", orders=orders, records=records)
+    order = Order.query.get(order_id)
+    if order:
+        order.customer_checked = correct
+        # Hardcoded period for now
+        newRecord = Record(OrderId=order.id, period=-1, activity="Customer approved order")
+        db.session.add(newRecord)
+        db.session.commit()
+        return jsonify({'message': 'Order status updated successfully'}), 200
+    else:
+        return jsonify({'error': 'Order not found'}), 404
 
 @views.route('/accountmanager', methods=['GET', 'POST'])
 def accountmanager():
