@@ -25,6 +25,34 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
+    // Function to handle updating supply order status
+    function updateSupplyOrderStatus(supply_order_id, isChecked) {
+        fetch("/update_supply_order_status", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ 
+                supply_order_id: supply_order_id, 
+                correct: isChecked
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) {
+                console.error('Failed to update supply order status:', data.error);
+            } else {
+                console.log('Supply order status updated successfully');
+                document.getElementById('blue').textContent = 'Blauw: ' + data.current_stock.blue;
+                document.getElementById('red').textContent = 'Rood: ' + data.current_stock.red;
+                document.getElementById('grey').textContent = 'Grijs: ' + data.current_stock.grey;
+            }
+        })
+        .catch(error => {
+            console.error('Error updating supply order status:', error);
+        });
+    }
+
     // Function to enable/disable checkbox based on actual delivery period input
     function updateCheckboxState(orderId) {
         var input = document.querySelector('#actual_delivery_period_' + orderId);
@@ -38,6 +66,30 @@ document.addEventListener('DOMContentLoaded', function() {
                 checkbox.checked = false; // Uncheck the checkbox if input is empty
             }
         }
+    }
+
+    // Function to update stock
+    function resetStock() {
+        fetch("/reset_stock", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) {
+                console.error('Failed to update stock:', data.error);
+            } else {
+                console.log('Stock updated successfully');
+                document.getElementById('blue').textContent = 'Blauw: ' + data.current_stock.blue;
+                document.getElementById('red').textContent = 'Rood: ' + data.current_stock.red;
+                document.getElementById('grey').textContent = 'Grijs: ' + data.current_stock.grey;
+            }
+        })
+        .catch(error => {
+            console.error('Error updating stock:', error);
+        });
     }
 
     // Event listener for input change on actual delivery period
@@ -71,4 +123,22 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
+
+    // Event listener for supply checkbox change
+    var checkboxes = document.querySelectorAll('input.supply-checkbox');
+    checkboxes.forEach(function(checkbox) {
+        checkbox.addEventListener('change', function() {
+            var supply_order_id = this.dataset.orderId;
+            var isChecked = this.checked;
+            updateSupplyOrderStatus(supply_order_id, isChecked);
+        });
+    });
+
+    // Event listener for reset stock button click
+    var resetButton = document.getElementById('reset-stock');
+    if (resetButton) {
+        resetButton.addEventListener('click', function() {
+            resetStock();
+        });
+    }
 });

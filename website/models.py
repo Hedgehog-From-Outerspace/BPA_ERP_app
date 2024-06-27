@@ -19,7 +19,8 @@ class SupplyOrder(db.Model):
     blue = db.Column(db.Integer, nullable=False)
     red = db.Column(db.Integer, nullable=False)
     grey = db.Column(db.Integer, nullable=False)
-    incorrect_delivery = db.Column(db.Boolean, nullable=True)
+    fulfilled = db.Column(db.Boolean, nullable=True)
+    correct_delivery = db.Column(db.Boolean, nullable=True)
     records = db.relationship('Record', backref='SupplyOrder', lazy=True)
 
 class Record(db.Model):

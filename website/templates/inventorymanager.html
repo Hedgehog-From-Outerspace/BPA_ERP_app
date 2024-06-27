@@ -2,13 +2,15 @@
 {% block title %}Voorraadbeheer{% endblock %}
 {% block content %}
 <div class="form-group">
-    <h2>Voorraad</h2>
+    <h2>Actuele voorraad</h2>
     <div>
         <label id="blue">Blauw: {{ stock['blue'] }}</label>
         <label id="red">Rood: {{ stock['red'] }}</label>
         <label id="grey">Grijs: {{ stock['grey'] }}</label>
+        <button class="btn btn-light" id="reset-stock">
+            <img src="../static/sync.svg" alt="icon">
+        </button>
     </div>
-    
     <h2>Bestellingen</h2>
     <table class="table table-hover table-secondary table-striped">
         <thead>
@@ -16,29 +18,128 @@
                 <th>Id</th>
                 <th>Type onderdeel</th>
                 <th>Aantal</th>
-                <th>Besteldatum</th>
-                <th>Periode</th>
-                <th>Verwachte leverperiode</th>
-                <th>Werkelijke leverperiode</th>
-                <th>Bestelling correct</th>
+                <th>Blauw</th>
+                <th>Rood</th>
+                <th>Grijs</th>
+                <th>Bestel blokjes</th>
+                <th>Afgehandeld</th>
             </tr>
         </thead>
         <tbody>
             {% for order in orders %}
             <tr>
-                <td>{{ order.id }}</td>
-                <td>{{ order.item_type }}</td>
-                <td>{{ order.amount }}</td>
-                <td>{{ order_dates[order.id][0] if order.id in order_dates else 'N/A' }}</td>
-                <td>{{ order_dates[order.id][1] if order.id in order_dates else 'N/A' }}</td>
-                <td>{{ order_dates[order.id][1] + 6 if order.id in order_dates else 'N/A' }}</td>
-                <td></td>
-                <td class="text-center">
+                <form id="orderForm_{{ order.id }}" action="/voorraadbeheer" method="POST">
+                    <input type="hidden" name="order_id" value="{{ order.id }}">
+                    <input type="hidden" name="period" value="-1">
+                    <input type="hidden" name="blue" value="{{ order.blue }}">
+                    <input type="hidden" name="red" value="{{ order.red }}">
+                    <input type="hidden" name="grey" value="{{ order.grey }}">
+                    <td>{{ order.id }}</td>
+                    <td>{{ order.item_type }}</td>
+                    <td>{{ order.amount }}</td>
+                    <td>{{ order.blue }}</td>
+                    <td>{{ order.red }}</td>
+                    <td>{{ order.grey }}</td>
+                    <td class="text-center">
+                        <button type="submit" class="btn btn-warning" name="action" value="create_supply_order">
+                            <img src="../static/supply_order.svg" alt="icon">
+                        </button>
+                    </td>
+                    <td class="text-center">
+                        <button type="submit" class="btn btn-info" name="action" value="update_order_status">
+                            <img src="../static/production.svg" alt="icon">
+                        </button>
+                    </td>
+                </form>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <div> <!-- form for ordering blocks -->
+        <h2>Maak een voorraad bestelling</h2>
+        <form id="orderForm" method="POST">
+            <div class="row form-row">
+                <div class="form-group col-md-2">
+                    <label for="period">Periode</label>
+                    <input 
+                        type="number" 
+                        id="period" 
+                        name="period" 
+                        class="form-control" 
+                        min="1"
+                        max="40" 
+                        required="required">
+                </div>
+                <div class="form-group col-md-2">
+                    <label for="blue">Blauw</label>
+                    <input 
+                        type="number" 
+                        id="blue" 
+                        name="blue" 
+                        class="form-control" 
+                        min="0" 
+                        required="required">
+                </div>
+                <div class="form-group col-md-2">
+                    <label for="red">Rood</label>
+                    <input 
+                        type="number" 
+                        id="red" 
+                        name="red" 
+                        class="form-control" 
+                        min="0" 
+                        required="required">
+                </div>
+                <div class="form-group col-md-2">
+                    <label for="grey">Grijs</label>
+                    <input 
+                        type="number" 
+                        id="grey" 
+                        name="grey" 
+                        class="form-control" 
+                        min="0" 
+                        required="required">
+                </div>
+                <div class="form-group col-md-3">
+                    <div class="input-align">
+                        <button type="submit" class="btn btn-primary">Bestelling plaatsen</button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+    <h2>Voorraad bestellingen</h2>
+    <table class="table table-hover table-secondary table-striped">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Blauw</th>
+                <th>Rood</th>
+                <th>Grijs</th>
+                <th>Vervult door leverancier</th>
+                <th>Correcte levering</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for supply_order in supply_orders %}
+            <tr>
+                <td>{{ supply_order.id }}</td>
+                <td>{{ supply_order.blue }}</td>
+                <td>{{ supply_order.red }}</td>
+                <td>{{ supply_order.grey }}</td>
+                <td>
                     <div class="form-check d-flex justify-content-center">
                         <input class="form-check-input" type="checkbox" 
-                            name="correct_{{ order.id }}" id="flexCheckDefault"
-                            data-order-id="{{ order.id }}" data-type="customer"
-                            {% if order.customer_checked %} checked {% endif %}>
+                                name="fulfilled_supply_{{ supply_order.id }}" id="fulfilled_supply_{{ supply_order.id }}"
+                                {% if supply_order.fulfilled %} checked {% endif %}
+                        disabled>
+                    </div>
+                </td>
+                <td class="text-center">
+                    <div class="form-check d-flex justify-content-center">
+                        <input class="form-check-input supply-checkbox" type="checkbox" 
+                               name="correct_supply_{{ supply_order.id }}" id="correct_supply_{{ supply_order.id }}"
+                               data-order-id="{{ supply_order.id }}"  {% if supply_order.correct_delivery %} checked {% endif %}>
                     </div>
                 </td>
             </tr>

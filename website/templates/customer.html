@@ -68,7 +68,7 @@
                 <td>{{ order.amount }}</td>
                 <td>{{ order_dates[order.id][0] if order.id in order_dates else 'N/A' }}</td>
                 <td>{{ order_dates[order.id][1] if order.id in order_dates else 'N/A' }}</td>
-                <td>{{ order_dates[order.id][1] + 6 if order.id in order_dates else 'N/A' }}</td>
+                <td>{{ order_dates[order.id][1] + deliver_by if order.id in order_dates else 'N/A' }}</td>
                 <td>{% if order.id in order_dates_finished %}{{ order_dates_finished[order.id] }}{% endif %}</td>
                 <td class="text-center">
                     <div class="form-check d-flex justify-content-center">
@@ -83,5 +83,4 @@
         </tbody>
     </table>
 </div>
-<script src="{{ url_for('static', filename='main.js') }}"></script>
 {% endblock %}

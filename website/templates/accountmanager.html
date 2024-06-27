@@ -25,7 +25,7 @@
                 <td>{{ order.amount }}</td>
                 <td>{{ order_dates_created[order.id][0] if order.id in order_dates_created else 'N/A' }}</td>
                 <td>{{ order_dates_created[order.id][1] if order.id in order_dates_created else 'N/A' }}</td>
-                <td>{{ order_dates_created[order.id][1] + 6 if order.id in order_dates_created else 'N/A' }}</td>
+                <td>{{ order_dates_created[order.id][1] + deliver_by if order.id in order_dates_created else 'N/A' }}</td>
                 <td>
                     <input class="form-control actual-delivery-input" type="number" name="actual_delivery_period" id="actual_delivery_period_{{ order.id }}"
                            min="1" max="40" value="{% if order.id in order_dates_finished %}{{ order_dates_finished[order.id] }}{% endif %}" data-order-id="{{ order.id }}">
@@ -43,5 +43,4 @@
         </tbody>
     </table>
 </div>
-<script src="{{ url_for('static', filename='main.js') }}"></script>
 {% endblock %}
