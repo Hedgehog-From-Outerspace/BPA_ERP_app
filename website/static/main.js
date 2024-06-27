@@ -2,13 +2,13 @@ document.addEventListener('DOMContentLoaded', function() {
     // Your existing functions and code here
 
     // Function to handle updating order status via AJAX
-    function updateOrderCorrectStatus(orderId, isChecked) {
+    function updateOrderCorrectStatus(orderId, isChecked, type) {
         fetch("/update_order_status", {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ order_id: orderId, correct: isChecked })
+            body: JSON.stringify({ order_id: orderId, correct: isChecked, type: type })
         })
         .then(response => {
             if (response.ok) {
@@ -28,7 +28,8 @@ document.addEventListener('DOMContentLoaded', function() {
         checkbox.addEventListener('change', function() {
             var orderId = this.dataset.orderId;
             var isChecked = this.checked;
-            updateOrderCorrectStatus(orderId, isChecked);
+            var type = this.dataset.type;
+            updateOrderCorrectStatus(orderId, isChecked, type);
         });
     });
 });
