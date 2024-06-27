@@ -92,6 +92,30 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
+    // Function to handle updating supply order supplier status
+    function updateSupplyOrderFulfilledStatus(supply_orderId, isChecked) {
+        fetch("/update_supply_order_fulfilled_status", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ 
+                supply_order_id: supply_orderId, 
+                fulfilled: isChecked
+            })
+        })
+        .then(response => {
+            if (response.ok) {
+                console.log('Supply order fulfilled status updated successfully');
+            } else {
+                console.error('Failed to update supply order fulfilled status');
+            }
+        })
+        .catch(error => {
+            console.error('Error updating supply order fulfilled status:', error);
+        });
+    }
+
     // Event listener for input change on actual delivery period
     var inputs = document.querySelectorAll('input.actual-delivery-input');
     inputs.forEach(function(input) {
@@ -141,4 +165,15 @@ document.addEventListener('DOMContentLoaded', function() {
             resetStock();
         });
     }
+
+    // Event listener for supplier checkbox change
+    var supplierCheckboxes = document.querySelectorAll('input.supplier-checkbox');
+    supplierCheckboxes.forEach(function(checkbox) {
+        checkbox.addEventListener('change', function() {
+            var supply_orderId = this.dataset.supplyOrderId;
+            var isChecked = this.checked;
+            updateSupplyOrderFulfilledStatus(supply_orderId, isChecked);
+        });
+    });
+
 });

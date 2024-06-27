@@ -206,7 +206,14 @@ def inventorymanagement():
 
 @views.route('/leverancier', methods=['GET', 'POST'])
 def supplier():
-    return render_template("supplier.html")
+    today = datetime.now(timezone.utc).date()
+    # Retrieve all supply orders created today
+    supply_orders = SupplyOrder.query.join(Record).filter(
+        db.func.date(Record.date_time) == today,
+        Record.activity == "Supply order created"
+    ).all()
+
+    return render_template("supplier.html", supply_orders=supply_orders)
 
 @views.route('/productie', methods=['GET', 'POST'])
 def production():
@@ -288,6 +295,27 @@ def update_supply_order_status():
             'red': stock.red,
             'grey': stock.grey
         }
+    })
+
+@views.route('update_supply_order_fulfilled_status', methods=['POST'])
+def update_supply_order_fulfilled_status():
+    data = request.get_json()
+    supply_order_id = data.get('supply_order_id')
+    fulfilled = data.get('fulfilled')
+
+    if supply_order_id is None or fulfilled is None:
+        return jsonify({'error': 'Missing supply_order_id or fulfilled parameter'}), 400
+
+    supply_order = SupplyOrder.query.get(supply_order_id)
+    if supply_order is None:
+        return jsonify({'error': 'Supply order not found'}), 404
+
+    supply_order.fulfilled = fulfilled
+    create_record(supply_order_id=supply_order.id, activity="Supply order fulfilled")
+    db.session.commit()
+
+    return jsonify({
+        'message': 'Supply order fulfilled status updated successfully'
     })
 
 @views.route('/reset_stock', methods=['POST'])

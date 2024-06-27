@@ -1,5 +1,43 @@
 {% extends "base.html" %}
 {% block title %}Leverancier{% endblock %}
 {% block content %}
-<h1> This is the leverancier page</h1>
+<h2>Bestellingen</h2>
+    <table class="table table-hover table-secondary table-striped">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Blauw</th>
+                <th>Rood</th>
+                <th>Grijs</th>
+                <th>Levering vervult</th>
+                <th>Building blocks ingangscontrole succesvol</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for supply_order in supply_orders %}
+            <tr>
+                <td>{{ supply_order.id }}</td>
+                <td>{{ supply_order.blue }}</td>
+                <td>{{ supply_order.red }}</td>
+                <td>{{ supply_order.grey }}</td>
+                <td>
+                    <div class="form-check d-flex justify-content-center">
+                        <input class="form-check-input supplier-checkbox" type="checkbox" 
+                                name="fulfilled_supply_{{ supply_order.id }}" id="fulfilled_supply_{{ supply_order.id }}"
+                                data-supply-order-id = "{{ supply_order.id }}"
+                                {% if supply_order.fulfilled %} checked {% endif %}>
+                    </div>
+                </td>
+                <td class="text-center">
+                    <div class="form-check d-flex justify-content-center">
+                        <input class="form-check-input supply-checkbox" type="checkbox" 
+                                name="correct_supply_{{ supply_order.id }}" id="correct_supply_{{ supply_order.id }}"
+                                {% if supply_order.correct_delivery %} checked {% endif %}
+                                disabled>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 {% endblock %}
