@@ -14,6 +14,8 @@ def home():
 @views.route('/klant', methods=['GET', 'POST'])
 def customer():
     client_timezone = pytz.timezone('Europe/Amsterdam')
+    today = datetime.now(timezone.utc).date()
+
     if request.method == 'POST':
         period = request.form.get('period')
         item_type = request.form.get('type').upper()
@@ -31,11 +33,18 @@ def customer():
             db.session.commit()
             flash("Bestelling geplaatst", category='success')
 
-    today = datetime.now(timezone.utc).date()
+    # Query records for orders created today
     records = Record.query.filter(
         db.func.date(Record.date_time) == today, 
         Record.activity == "Order created"
     ).all()
+
+    # Query records for orders finished today
+    records_finished = Record.query.filter(
+        db.func.date(Record.date_time) == today,
+        Record.activity == "Order finished"
+    ).all()
+
     order_ids = [record.OrderId for record in records]
     orders = Order.query.filter(Order.id.in_(order_ids)).all()
 
@@ -47,7 +56,11 @@ def customer():
         ) for record in records
     }
 
-    return render_template("customer.html", orders=orders, order_dates=order_dates)
+    order_dates_finished = {
+        record.OrderId: record.period for record in records_finished
+    }
+
+    return render_template("customer.html", orders=orders, order_dates=order_dates, order_dates_finished=order_dates_finished)
 
 @views.route('/accountmanager', methods=['GET', 'POST'])
 def accountmanager():
@@ -68,11 +81,9 @@ def accountmanager():
     
     # Extract order ids from both "Order created" and "Order finished" records
     order_ids_created = [record.OrderId for record in records_created]
-    order_ids_finished = [record.OrderId for record in records_finished]
-    
+
     # Query orders based on extracted order ids
     orders_created = Order.query.filter(Order.id.in_(order_ids_created)).all()
-    orders_finished = Order.query.filter(Order.id.in_(order_ids_finished)).all()
     
     # Create dictionaries to map order ids to their respective dates
     order_dates_created = {
@@ -168,7 +179,6 @@ def update_order_status():
         return jsonify({'message': 'Order status updated successfully'}), 200
     else:
         return jsonify({'error': 'Order not found'}), 404
-
 
 def create_record(order_id, period, activity):
     new_record = Record(OrderId=order_id, period=period, activity=activity)
