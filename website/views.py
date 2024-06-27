@@ -217,7 +217,35 @@ def supplier():
 
 @views.route('/productie', methods=['GET', 'POST'])
 def production():
-    return render_template("production.html")
+    today = datetime.now(timezone.utc).date()
+    if request.method == 'POST':
+        order_id = request.form.get('order_id')
+        end_period = request.form.get('end_period')
+
+        order = Order.query.get(order_id)
+        if order is None:
+            flash("Order not found", category='error')
+        else:
+            create_record(order_id=order.id, period=end_period, activity="Production finished")
+            db.session.commit()
+            flash("Order updated", category='success')
+
+    # Get all orders created today that do have an "Inventory management finished" record but not a "Production finished" record
+    created_records = Record.query.filter(
+        db.func.date(Record.date_time) == today,
+        Record.activity == "Inventory management finished",
+        ~Record.OrderId.in_(
+            db.session.query(Record.OrderId).filter(
+                db.func.date(Record.date_time) == today,
+                Record.activity == "Production finished"
+            ).subquery()
+        )
+    ).all()
+
+    order_ids = [record.OrderId for record in created_records]
+    orders = Order.query.filter(Order.id.in_(order_ids)).all()
+
+    return render_template("production.html", orders=orders)
 
 @views.route('/update_order_status', methods=['POST'])
 def update_order_status():

@@ -1,5 +1,42 @@
 {% extends "base.html" %}
 {% block title %}Productie{% endblock %}
 {% block content %}
-<h1> This is the productie page</h1>
+<div class="form-group">
+    <h2>Bestellingen</h2>
+    <table class="table table-hover table-secondary table-striped">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Type onderdeel</th>
+                <th>Aantal</th>
+                <th>Blauw</th>
+                <th>Rood</th>
+                <th>Grijs</th>
+                <th>Bestelling voltooid</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for order in orders %}
+            <form id="form_{{ order.id }}" method="POST">
+                <tr>
+                    <td>{{ order.id }}</td>
+                    <td>{{ order.item_type }}</td>
+                    <td>{{ order.amount }}</td>
+                    <th>{{ order.blue}}</th>
+                    <th>{{ order.red}}</th>
+                    <th>{{ order.grey}}</th>
+                    <td class="text-center mr-2">
+                        <div class="d-flex">
+                            <input type="number" name="end_period" class="" min="1" max="40" value="" required>
+                            <button type="submit" class="btn btn-primary btn-sm">Opslaan</button>
+                        </div>
+                        <input type="hidden" name="order_id" value="{{ order.id }}">
+                    </td>
+                    
+                </tr>
+            </form>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
 {% endblock %}
