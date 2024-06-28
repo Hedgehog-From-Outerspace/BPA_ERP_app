@@ -30,7 +30,6 @@
             <tr>
                 <form id="orderForm_{{ order.id }}" action="/voorraadbeheer" method="POST">
                     <input type="hidden" name="order_id" value="{{ order.id }}">
-                    <input type="hidden" name="period" value="-1">
                     <input type="hidden" name="blue" value="{{ order.blue }}">
                     <input type="hidden" name="red" value="{{ order.red }}">
                     <input type="hidden" name="grey" value="{{ order.grey }}">
@@ -46,6 +45,7 @@
                         </button>
                     </td>
                     <td class="text-center">
+                        <input type="number" name="period" min="1" max="40">
                         <button type="submit" class="btn btn-info" name="action" value="update_order_status">
                             <img src="../static/production.svg" alt="icon">
                         </button>
