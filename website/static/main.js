@@ -26,7 +26,8 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Function to handle updating supply order status
-    function updateSupplyOrderStatus(supply_order_id, isChecked) {
+    function updateSupplyOrderStatus(supply_order_id, isChecked, periodValue) {
+        console.log(supply_order_id, isChecked, periodValue);
         fetch("/update_supply_order_status", {
             method: 'POST',
             headers: {
@@ -34,7 +35,8 @@ document.addEventListener('DOMContentLoaded', function() {
             },
             body: JSON.stringify({ 
                 supply_order_id: supply_order_id, 
-                correct: isChecked
+                correct: isChecked,
+                period: periodValue
             })
         })
         .then(response => response.json())
@@ -148,15 +150,23 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Event listener for supply checkbox change
-    var checkboxes = document.querySelectorAll('input.supply-checkbox');
-    checkboxes.forEach(function(checkbox) {
-        checkbox.addEventListener('change', function() {
-            var supply_order_id = this.dataset.orderId;
-            var isChecked = this.checked;
-            updateSupplyOrderStatus(supply_order_id, isChecked);
-        });
+// Event listener for supply checkbox change
+var checkboxes = document.querySelectorAll('input.supply-checkbox');
+checkboxes.forEach(function(checkbox) {
+    checkbox.addEventListener('change', function() {
+        var supply_order_id = this.dataset.orderId; // Get the supply order ID from data-order-id attribute of checkbox
+        var isChecked = this.checked;
+        
+        // Find the associated period input for the current checkbox row
+        var periodInput = document.querySelector('input[name="period_' + supply_order_id + '"]');
+        if (periodInput) {
+            var periodValue = periodInput.value;
+            updateSupplyOrderStatus(supply_order_id, isChecked, periodValue);
+        } else {
+            console.error('Period input not found for supply order ID: ' + supply_order_id);
+        }
     });
+});
 
     // Event listener for reset stock button click
     var resetButton = document.getElementById('reset-stock');

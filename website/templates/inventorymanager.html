@@ -40,13 +40,13 @@
                     <td>{{ order.red }}</td>
                     <td>{{ order.grey }}</td>
                     <td class="text-center">
-                        <input type="number" name="period" min="1" max="40">
+                        <input type="number" name="period" min="1" max="40" value="{{ supply_order_dates[supply_order,id] }}">
                         <button type="submit" class="btn btn-warning" name="action" value="create_supply_order">
                             <img src="../static/supply_order.svg" alt="icon">
                         </button>
                     </td>
                     <td class="text-center">
-                        <input type="number" name="period" min="1" max="40">
+                        <input type="number" name="period_order" min="1" max="40">
                         <button type="submit" class="btn btn-info" name="action" value="update_order_status">
                             <img src="../static/production.svg" alt="icon">
                         </button>
@@ -137,10 +137,13 @@
                     </div>
                 </td>
                 <td class="text-center">
-                    <div class="form-check d-flex justify-content-center">
-                        <input class="form-check-input supply-checkbox" type="checkbox" 
-                               name="correct_supply_{{ supply_order.id }}" id="correct_supply_{{ supply_order.id }}"
-                               data-order-id="{{ supply_order.id }}"  {% if supply_order.correct_delivery %} checked {% endif %}>
+                    <div class="d-flex justify-content-center align-items-center">
+                        <input type="number" name="period_{{ supply_order.id }}" min="1" max="40" class="form-control me-2" value="{{ correct_delivery_periods[supply_order.id] }}">
+                        <div class="form-check">
+                            <input class="form-check-input supply-checkbox" type="checkbox" 
+                                   name="correct_supply_{{ supply_order.id }}" id="correct_supply_{{ supply_order.id }}"
+                                   data-order-id="{{ supply_order.id }}" {% if supply_order.correct_delivery %} checked {% endif %}>
+                        </div>
                     </div>
                 </td>
             </tr>

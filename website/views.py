@@ -143,6 +143,7 @@ def inventorymanagement():
             flash("Voorraad bestelling geplaatst", category='success')
 
         elif action == 'update_order_status':
+            period = request.form.get('period_order')
             order = Order.query.get(order_id)
             if order is None:
                 flash("Order not found", category='error')
@@ -196,12 +197,38 @@ def inventorymanagement():
     supply_order_ids = [record.SupplyOrderId for record in supply_created_records]
     supply_orders = SupplyOrder.query.filter(SupplyOrder.id.in_(supply_order_ids)).all()
 
+    # Get all records with "Correct delivery" activity
+    correct_delivery_records = Record.query.filter(
+        db.func.date(Record.date_time) == today,
+        Record.activity == "correct delivery"
+    ).all()
+
+    # Create a dictionary to map supply order ids to their "Correct delivery" periods
+    correct_delivery_periods = {
+        record.SupplyOrderId: record.period for record in correct_delivery_records
+    }
+
+    # Get all records with "Supply order created" activity
+    supply_created_records = Record.query.filter(
+        db.func.date(Record.date_time) == today,
+        Record.activity == "Supply order created"
+    ).all()
+
+    # Create a dictionary to map supply order ids to their "Supply order created" dates
+    supply_order_dates = {
+        record.SupplyOrderId: (
+            record.period
+        ) for record in supply_created_records
+    }
+
     return render_template(
         "inventorymanager.html", 
         orders=orders, 
         order_dates=order_dates, 
         stock=stock, 
-        supply_orders=supply_orders
+        supply_orders=supply_orders,
+        correct_delivery_periods=correct_delivery_periods,
+        supply_order_dates=supply_order_dates
     )
 
 @views.route('/leverancier', methods=['GET', 'POST'])
@@ -292,8 +319,9 @@ def update_supply_order_status():
     data = request.get_json()
     supply_order_id = data.get('supply_order_id')
     correct = data.get('correct')
+    period = data.get('period')
 
-    if supply_order_id is None or correct is None:
+    if supply_order_id is None or correct is None or period is None:
         return jsonify({'error': 'Missing supply_order_id or correct parameter'}), 400
 
     supply_order = SupplyOrder.query.get(supply_order_id)
@@ -307,13 +335,13 @@ def update_supply_order_status():
         stock.blue += supply_order.blue
         stock.red += supply_order.red
         stock.grey += supply_order.grey
-        create_record(supply_order_id=supply_order.id, activity="correct delivery")
+        create_record(supply_order_id=supply_order.id, period=period, activity="correct delivery")
     else:
         stock = Stock.query.first()
         stock.blue -= supply_order.blue
         stock.red -= supply_order.red
         stock.grey -= supply_order.grey
-        create_record(supply_order_id=supply_order.id, activity="Incorrect delivery")
+        create_record(supply_order_id=supply_order.id, period=period, activity="Incorrect delivery")
     db.session.commit()
 
     return jsonify({
